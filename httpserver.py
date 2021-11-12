@@ -53,7 +53,7 @@ def write_log(stcode, time1, url, file):
     method = url[0:6] 
     if(stcode == 200 and method == 'DELETE'):
         log = "127.0.0.1 - - " + "[" + str(time1) + " +0530] "  + '"' + url + '" ' + str(stcode) + " 0" + ' "-" "-"\r\n' 
-    elif(stcode == 400 or stcode == 415 or stcode == 404 or stcode == 414 or stcode == 403 or stcode == 401):
+    elif(stcode == 400 or stcode == 415 or stcode == 404 or stcode == 414 or stcode == 403 or stcode == 401 or stcode == 411 or stcode == 413):
         log = "127.0.0.1 - - " + "[" + str(time1) + " +0530] "  + '"' + url + '" ' + str(stcode) + " 0" + ' "-" "-"\r\n' 
     elif(stcode == 200 or stcode == 201 or stcode == 204 or stcode == 304 or stcode == 202):
         log = "127.0.0.1 - - " + "[" + str(time1) + " +0530] "  + '"' + url + '" ' + str(stcode) + " " + str(os.stat(file).st_size) + ' "-" "-"\r\n' 
@@ -78,7 +78,7 @@ def get_headers(stcode, time1, length = None, url = None,  extension = None, fil
             elif i == 'Content-Location' and filename != None:
                 response += i + " : " + filename + "\r\n"
             elif i == 'Date':
-                response += i + " : " + time1 + '\r\n'
+                response += i + " : " + str(time1) + '\r\n'
             elif i == 'Last-Modified':
                 if filename != None:
                     date2 = time.ctime(os.path.getmtime(filename))
@@ -139,11 +139,19 @@ def HTTP_404():
     l = len(response_body)
     date_time1 = datetime.datetime.now()
     date_time = givedate(date_time1)
-    response = get_headers(404, l)
+    response = get_headers(404, date_time, l)
+    return response, response_body
+def HTTP_411():
+    stcode = 411
+    response_body = "<html>\n<head>\n<title>411 Length Required</title>\n</head>\n<body>\n<hr>\n<address>Apache 2.4.18 (Ubuntu) Server at 127.0.0.1 </address>\n</body>\n</html>\n"
+    l = len(response_body)
+    date_time1 = datetime.datetime.now()
+    date_time = givedate(date_time1)
+    response = get_headers(411, l)
     return response, response_body
 def HTTP_413():
     stcode = 413
-    response_body = "<html>\n<head>\n<title>413 Payload Too Long</title>\n</head>\n<body>\n<h4>The requested payload was too long for server to process.</h4>\n<hr>\n<address>Apache/2.4.18 (Ubuntu) Server at 127.0.0.1</address>\n</body>\n</html>"
+    response_body = "<html>\n<head>\n<title>413 Payload Too Large</title>\n</head>\n<body>\n<h4>The requested payload was too long for server to process.</h4>\n<hr>\n<address>Apache/2.4.18 (Ubuntu) Server at 127.0.0.1</address>\n</body>\n</html>"
     l = len(response_body)
     date_time1 = datetime.datetime.now()
     date_time = givedate(date_time1)
@@ -187,7 +195,8 @@ def GET(url, connectionsocket, addr, data):
         ifms = 1
     extension = final_url[-1].split('.')
     extension = extension[-1]
-    if(os.access(file, os.W_OK) == False or os.access(file, os.R_OK) == False and url != None):
+    if(os.path.exists(file) and (os.access(file, os.W_OK) == False or os.access(file, os.R_OK) == False) and url != None):
+        
         stcode = 403
         response, response_body = HTTP_403()
     else:
@@ -240,13 +249,14 @@ def POST(url, connectionsocket, addr, data):
         write_log(414, datetime.datetime.now(), url1, url)
         return response, response_body
     lines = data.split('\r\n')
-    lines_to_post = lines[-1]
+    lines_to_post = lines[-2]
     file = url
     flag = 0
     extention = file.split('.')[-1]
-    if(os.access(file, os.W_OK) == False or os.access(file, os.R_OK) == False and url != None):
+    if (os.path.exists(file) and (os.access(file, os.W_OK) == False or os.access(file, os.R_OK) == False) and url != None):
         stcode = 403
         response, response_body = HTTP_403()
+        write_log(stcode, datetime.datetime.now(), url, file)
     else:
             if extention in extentions:
                 try:
@@ -284,6 +294,7 @@ def DELETE(url, connectionsocket, addr, data):
     url_len = len(url)
     global stcode
     flag = 0
+    url1 = "DELETE " + url
     auth = data.split('\r\n')
     auth_flag = [string for string in auth if "Authorization" in string]
     if url_len > max_uri_len:
@@ -292,9 +303,10 @@ def DELETE(url, connectionsocket, addr, data):
         return response, response_body
     file = url
     extention = file.split('.')[-1]
-    if(os.access(file, os.W_OK) == False or os.access(file, os.R_OK) == False and url != None):
+    if(os.path.exists(file) and (os.access(file, os.W_OK) == False or os.access(file, os.R_OK) == False) and url != None):
         stcode = 403
         response, response_body = HTTP_403()
+        write_log(stcode, datetime.datetime.now(), url1, file)
     else:
         if extention in extentions:     
             try:
@@ -329,6 +341,29 @@ def DELETE(url, connectionsocket, addr, data):
                     else:
                         stcode = 401
                         response, response_body = HTTP_401()
+                else:
+                    if flag == 1:
+                        f = open(file, 'rb')
+                        text = f.read()
+                    else:
+                        f = open(file, 'r')
+                        text = f.read()
+                    le = len(text)
+                    if le == 0:
+                        stcode = 204
+                        date_time1 = datetime.datetime.now()
+                        date_time = givedate(date_time1)
+                        l = 0
+                        response = get_headers(stcode, date_time, l, url, extention, file)
+                        response_body = ""
+                    else:
+                        stcode = 200
+                        response_body = "<html>\n<body>\n<h1>File deleted.</h1>\n</body>\n</html>"
+                        date_time1 = datetime.datetime.now()
+                        date_time = givedate(date_time1)
+                        response = get_headers(stcode, date_time, len(response_body), url, extention, file)
+                    os.remove(file)
+
             else:
                 stcode = 404
                 response, response_body = HTTP_404()
@@ -336,7 +371,75 @@ def DELETE(url, connectionsocket, addr, data):
             stcode = 415
             response, response_body = HTTP_415()
     return response, response_body
-   
+
+def PUT(url, connectionsocket, addr, data):
+    url_len = len(url)
+    global stcode
+    flag = 0 
+    if url_len > max_uri_len:
+        response, response_body = HTTP_414()
+        stcode = 414
+        return response, response_body
+    data = data.split('\r\n')
+    lines = data[-2]
+    file = url
+    url1 = "PUT " + url
+    cont_len = [string for string in data if "Content-Length" in string]
+    auth = [string for string in data if "Authorization" in string]
+    extention = file.split('.')[-1]
+    if (os.path.exists(file) and (os.access(file, os.W_OK) == False or os.access(file, os.R_OK) == False) and url != None):
+        stcode = 403
+        response, response_body = HTTP_403()    
+    elif extention in extentions:
+        if cont_len:
+            if len(lines) < max_payload:
+                if os.path.exists(file):
+                    if auth:
+                        if user_auth(auth):
+                            f = open(file, "w")
+                            f.write(lines)
+                            stcode = 200
+                            response_body = lines
+                            date_time1 = datetime.datetime.now()
+                            date_time = givedate(date_time1)
+                            response = get_headers(stcode, date_time, len(lines), url, extention, file)
+                        
+                        else:
+                            stcode = 401
+                            response, response_body = HTTP_401()
+                    else:
+                        f = open(file, 'w')
+                        f.write(lines)
+                        stcode = 200
+                        response_body = lines
+                        date_time1 = datetime.datetime.now()
+                        date_time = givedate(date_time1)
+                        response = get_headers(stcode, date_time, len(lines), url, extention, file)
+                else:
+                    f = open(file, 'x')
+                    f = open(file, 'w')
+                    f.write(lines)
+                    stcode= 201
+                    response_body = lines
+                    date_time1 = datetime.datetime.now()
+                    date_time = givedate(date_time1)
+                    response = get_headers(stcode, date_time, len(lines), url, extention, file)
+                        
+            else:
+                stcode = 413
+                response, response_body = HTTP_413()
+
+        else:
+            stcode = 411
+            response, response_body = HTTP_411()
+    if stcode == 411 or stcode == 413 or stcode == 403:
+        write_log(stcode, datetime.datetime.now(), url1, file)
+    else:
+        log = "127.0.0.1 - - " + "[" + str(date_time) + " +0530] "  + '"' + url1 + '" ' + str(stcode) + " " + len(lines) + ' "-" "-"\r\n'
+        f = open('access.log', 'a')
+        f.write(log)
+    return response, response_body
+    
 def HTTPRequest(request):
     version = '1.1'
     request = request.split('\r\n')
@@ -366,6 +469,10 @@ def call_methods(connectionsocket, addr, data):
         res = response + response_body
         connectionsocket.sendall(res.encode())
         write_log(stcode, datetime.datetime.now(), fp[0], url)
+    elif method == 'PUT':
+        response, response_body = PUT(url, connectionsocket, addr, data)
+        res = response + response_body
+        connectionsocket.sendall(res.encode())
 def start_restart_stop(serversocket):
     while True:
         action = input()

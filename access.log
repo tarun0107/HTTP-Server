@@ -1,0 +1,25 @@
+127.0.0.1 - - [09/Nov/2021:21:29:40 +0530] "GET /home/tarun/index.html" 304 885 "-" "-"
+127.0.0.1 - - [09/Nov/2021:21:30:13 +0530] "GET /home/tarun/index.html" 304 885 "-" "-"
+127.0.0.1 - - [09/Nov/2021:23:55:28 +0530] "POST /home/tarun/index.html" 200 885 "-" "-"  Hi
+127.0.0.1 - - [09/Nov/2021:23:59:55 +0530] "POST /home/tarun/index.html" 200 885 "-" "-"  Hi
+127.0.0.1 - - [10/Nov/2021:00:02:12 +0530] "POST /home/tarun/index.html" 200 885 "-" "-"  Hi
+127.0.0.1 - - [10/Nov/2021:00:04:50 +0530] "GET /home/tarun/index.html" 200 885 "-" "-"
+127.0.0.1 - - [10/Nov/2021:00:47:23 +0530] "DELETE /home/tarun/index.html.1" 415 0 "-" "-"
+127.0.0.1 - - [10/Nov/2021:00:48:10 +0530] "DELETE /home/tarun/index1.html" 200 0 "-" "-"
+127.0.0.1 - - [10/Nov/2021:21:08:36 +0530] "DELETE /home/tarun/Downloads/work.html" 200 0 "-" "-"
+127.0.0.1 - - [10/Nov/2021:21:10:38 +0530] "DELETE /home/tarun/Downloads/work.html" 403 0 "-" "-"
+127.0.0.1 - - [10/Nov/2021:21:22:05 +0530] "DELETE /home/tarun/Downloads/index0.html" 200 0 "-" "-"
+127.0.0.1 - - [10/Nov/2021:21:24:40 +0530] "DELETE /home/tarun/Downloads/index0.html" 403 0 "-" "-"
+127.0.0.1 - - [10/Nov/2021:21:37:48 +0530] "POST /home/tarun/Downloads/googler.png" 200 17525 "-" "-" 
+127.0.0.1 - - [10/Nov/2021:21:39:06 +0530] "POST /home/tarun/Downloads/googler.png" 200 17525 "-" "-" Authorization : Basic dGFydW46dHJ0MTcwMQ
+127.0.0.1 - - [10/Nov/2021:21:39:59 +0530] "DELETE /home/tarun/Downloads/googler.png" 401 0 "-" "-"
+127.0.0.1 - - [11/Nov/2021:18:47:47 +0530] "DELETE /home/tarun/Downloads/googler.png" 403 0 "-" "-"
+127.0.0.1 - - [11/Nov/2021:18:55:53 +0530] "DELETE /home/tarun/Downloads/index0.html" 200 0 "-" "-"
+127.0.0.1 - - [11/Nov/2021:22:32:50 +0530] "DELETE /home/tarun/Downloads/googler.png" 404 0 "-" "-"
+127.0.0.1 - - [11/Nov/2021:22:37:18 +0530] "DELETE /home/tarun/Downloads/index0.html" 404 0 "-" "-"
+127.0.0.1 - - [11/Nov/2021:22:38:14 +0530] "GET /home/tarun/index.html" 200 885 "-" "-"
+127.0.0.1 - - [11/Nov/2021:22:38:49 +0530] "POST /home/tarun/index.html" 200 885 "-" "-" Hi
+127.0.0.1 - - [11/Nov/2021:22:39:28 +0530] "GET /home/tarun/index0.html" 404 0 "-" "-"
+127.0.0.1 - - [11/Nov/2021:22:54:32 +0530] "PUT /home/tarun/index0.html" 201 5 "-" "-"
+127.0.0.1 - - [11/Nov/2021:23:02:04 +0530] "DELETE /home/tarun/googler.png" 404 0 "-" "-"
+127.0.0.1 - - [11/Nov/2021:23:02:53 +0530] "DELETE /home/tarun/googler.png" 404 0 "-" "-"
